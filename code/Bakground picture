@@ -1,0 +1,42 @@
+#library requireds
+
+library(tidyverse)
+library(ggplot2)
+library(png)
+library(grid)
+
+*data*
+commute <- read_rds(url("http://data.cwick.co.nz/commute.rds"))
+
+*subset of "western" state for class*
+states <- c("or", "ak", "ca", "wa", "id", "nv")
+commute_nw <- filter(commute, state %in% states)
+Bike<-commute_nw[ which(commute_nw$transport_type =="Bicycle"),]
+
+*Image*
+Bike_background<-png::readPNG("bike.png")
+
+#The code to include the picture
+annotation_custom(rasterGrob(Bike_background, 
+                               width = unit(1,"npc"), 
+                               height = unit(1,"npc")), 
+                    -Inf, Inf, -Inf, Inf)
+                    
+ # All code
+ ggplot(data=Bike, aes(x=reorder(state_name,-prop), y=prop, fill=state_name))+
+  annotation_custom(rasterGrob(Bike_background, 
+                               width = unit(1,"npc"), 
+                               height = unit(1,"npc")), 
+                    -Inf, Inf, -Inf, Inf) +
+  geom_bar(stat = "identity")+
+  scale_y_continuous(expand=expansion(mult = c(0,0.1)))+
+  labs(x = NULL, y = NULL)+
+  ggtitle("People in Oregon commut by bicycle more \n than in other (nearby) states")+
+  scale_fill_manual(values = c("#D3D3D3","#D3D3D3","#D3D3D3","#D3D3D3","#002a86","#D3D3D3"))+
+  theme_classic() +
+  theme(legend.position = "none",
+        panel.grid.major.x = element_blank())+
+  theme(plot.title = element_text(size=20, face = "bold"))+
+  theme(axis.text = element_text(size = 14))
+                    
+                    
